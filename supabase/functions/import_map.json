@@ -14,6 +14,9 @@
     "unist-builder": "https://esm.sh/v132/unist-builder@4.0.0",
     "mdast": "https://esm.sh/v132/@types/mdast@4.0.0/index.d.ts",
 
+    "xlsx": "https://unpkg.com/xlsx/xlsx.mjs",
+    "cptable": "https://unpkg.com/xlsx/dist/cpexcel.full.mjs",
+
     "https://esm.sh/v132/decode-named-character-reference@1.0.2/esnext/decode-named-character-reference.mjs": "https://esm.sh/decode-named-character-reference@1.0.2?target=deno"
   }
 }
