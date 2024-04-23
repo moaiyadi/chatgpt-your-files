@@ -124,5 +124,7 @@ Deno.serve(async (req) => {
   });
 
   const stream = OpenAIStream(completionStream);
+  console.log('OpenAI Response: ', completionStream)
   return new StreamingTextResponse(stream, { headers: corsHeaders });
+  
 });
