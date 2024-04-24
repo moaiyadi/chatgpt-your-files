@@ -2,7 +2,7 @@ import * as XLSX from 'xlsx';
 
 export function parseExcelFile(
   file: File | Buffer,
-  maxSectionLength = 2500
+  maxSectionLength = 2000
 ): Promise<any[]> {
   return new Promise((resolve, reject) => {
     try {
@@ -11,8 +11,8 @@ export function parseExcelFile(
 
       for (const sheets of sheetnames) {
         const worksheet = workbook.Sheets[sheets];
-        const content = XLSX.utils.sheet_to_txt(worksheet);
-        console.log(`Text contents for '${sheets}':`, content )
+        const content = XLSX.utils.sheet_to_csv(worksheet, {header: 1});
+        console.log(`Contents for '${sheets}':`, content )
 
         if (content.length > maxSectionLength){
           const numberChunks = Math.ceil(content.length / maxSectionLength);

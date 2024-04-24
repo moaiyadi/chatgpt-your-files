@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
     );
   }
 
-  const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     global: {
       headers: {
         authorization,
@@ -58,7 +58,7 @@ Deno.serve(async (req) => {
     },
   });
 
-  const { messages, embedding } = await req.json();
+  const { chatId, message, messages, embedding } = await req.json();
 
   const { data: documents, error: matchError } = await supabase
     .rpc('match_document_sections', {
@@ -96,7 +96,7 @@ Deno.serve(async (req) => {
         content: codeBlock`
         You're an AI assistant who answers questions about documents.
 
-        You're a chat bot, so keep your replies succinct.
+        Keep your replies succinct.
 
         You're only allowed to use the documents below to answer the question.
 
@@ -124,7 +124,7 @@ Deno.serve(async (req) => {
   });
 
   const stream = OpenAIStream(completionStream);
-  console.log('OpenAI Response: ', completionStream)
+  console.log('OpenAI Response: ', completionStream);
   return new StreamingTextResponse(stream, { headers: corsHeaders });
   
 });
