@@ -109,6 +109,7 @@ import { createClient } from '@supabase/supabase-js';
 import { Database } from '../_lib/database.ts';
 import { processMarkdown } from '../_lib/markdown-parser.ts';
 import { parseExcelFile } from '../_lib/excel-parser.ts';
+import { parsePdfFile } from '../_lib/pdf-parser.ts';
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL');
 const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
@@ -223,7 +224,50 @@ Deno.serve(async (req) => {
           content,
         }))
       );
+
+      if (error) {
+        console.error(error);
+        return new Response(
+          JSON.stringify({ error: 'Failed to save document sections' }),
+          {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' },
+          }
+        );
+      }
+  
+      console.log(
+        `Saved ${processedExcel.sections.length} sections for file '${document.name}'`
+      );
     }
+  else if (document.name.endsWith('.pdf') || document.name.endsWith('.PDF')){
+    console.log("Sending PDF file to parse")
+    const processedPdf = await parsePdfFile(fileContents);
+    
+    console.log("PDF file parsed successfully")
+    const {error} = await supabase.from('document_sections').insert(
+      processedPdf.sections.map(( {content} ) => ({
+        document_id,
+        content
+      }))
+    );
+
+
+    if (error) {
+      console.error(error);
+      return new Response(
+        JSON.stringify({ error: 'Failed to save document sections' }),
+        {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    console.log(
+      `Saved ${processedPdf.sections.length} sections for file '${document.name}'`
+    );
+  }
   
 
   return new Response(null, {

@@ -17,6 +17,9 @@
     "xlsx": "https://unpkg.com/xlsx/xlsx.mjs",
     "cptable": "https://unpkg.com/xlsx/dist/cpexcel.full.mjs",
 
+    "pdfjs": "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.1.392/pdf.min.mjs",
+    
+
     "https://esm.sh/v132/decode-named-character-reference@1.0.2/esnext/decode-named-character-reference.mjs": "https://esm.sh/decode-named-character-reference@1.0.2?target=deno"
   }
 }
