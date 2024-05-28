@@ -1,30 +1,11 @@
-// import { createClient } from '@supabase/supabase-js';
-// import { env, pipeline, Pipeline } from '@xenova/transformers';
-// import { Database } from '../_lib/database.ts';
-// // import { usePipeline } from '../hook/use-pipeline.ts';
-
-
-// // Configuration for Deno runtime
-// env.useBrowserCache = false;
-// env.allowLocalModels = false;
-
-// console.log("Starting pipeline")
-// const generateEmbedding = await pipeline(
-//   'feature-extraction',
-//   'Supabase/gte-small'
-// );
-// console.log("Pipeline created successfully")
-
-// Setup type definitions for built-in Supabase Runtime APIs
-/// <reference types="https://esm.sh/@supabase/functions-js/src/edge-runtime.d.ts" />
-
 import { createClient } from '@supabase/supabase-js';
+import { Database } from '../_lib/database.ts';
 
 const model = new Supabase.ai.Session('gte-small');
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL');
 const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
-console.log("Url and Anon key grabbed successfully")
+// console.log("Url and Anon key grabbed successfully")
 
 console.log("Creating deno server")
 Deno.serve(async (req) => {

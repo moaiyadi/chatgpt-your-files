@@ -104,12 +104,11 @@
 //   });
 // });
 
-
 import { createClient } from '@supabase/supabase-js';
 import { Database } from '../_lib/database.ts';
-import { processMarkdown } from '../_lib/markdown-parser.ts';
-import { parseExcelFile } from '../_lib/excel-parser.ts';
-import { parsePdfFile } from '../_lib/pdf-parser.ts';
+import { Section, processMarkdown } from '../_lib/markdown-parser.ts';
+import { parseExcelFile } from "../_lib/excel-parser.ts";
+import { /*chunkContent,*/ parsePdfFile } from '../_lib/pdf-parser.ts';
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL');
 const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
@@ -182,11 +181,12 @@ Deno.serve(async (req) => {
     );
   }
 
-  const fileContents = await file.text();
+  // const fileContents = await file;
   let sections : Section[];
 
-  if (document.name.endsWith('.md') || document.name.endsWith('.markdown'))
+  if (document.name && (document.name.endsWith('.md') || document.name.endsWith('.markdown')))
   {
+    const fileContents = await file.text();
     const processedMd = processMarkdown(fileContents);
 
     const { error } = await supabase.from('document_sections').insert(
@@ -208,14 +208,17 @@ Deno.serve(async (req) => {
     }
 
     console.log(
-      `Saved ${processedMd.sections.length} sections for file '${document.name}'`
+      `Saved ${processedMd.sections} sections for file '${document.name}'`
     );
   }
-  else if (document.name.endsWith('.xlsx') || document.name.endsWith('.xls'))
+  else if (document.name && (document.name.endsWith('.xlsx') || document.name.endsWith('.xls')))
     {
+      const buffer = await file.arrayBuffer();
+      const fileContents = new Uint8Array(buffer);
+
       const processedExcel = await parseExcelFile(fileContents);
-      sections = processedExcel.map((row) => ({
-        content: JSON.stringify(row),
+      sections = processedExcel.map((column) => ({
+        content: JSON.stringify(column),
       }));
 
       const { error } = await supabase.from('document_sections').insert(
@@ -237,20 +240,32 @@ Deno.serve(async (req) => {
       }
   
       console.log(
-        `Saved ${processedExcel.sections.length} sections for file '${document.name}'`
+        `Saved ${processedExcel} sections for file '${document.name}'`
       );
     }
-  else if (document.name.endsWith('.pdf') || document.name.endsWith('.PDF')){
+  else if (document.name && (document.name.endsWith('.pdf') || document.name.endsWith('.PDF'))){
     console.log("Sending PDF file to parse")
+    const fileArrayBuffer = await file.arrayBuffer();
+    const fileContents = new Uint8Array(fileArrayBuffer);
+
     const processedPdf = await parsePdfFile(fileContents);
+    // const chunked = await chunkContent(processedPdf);
+    // sections = chunked.map((chunk) => ({
+    //   content: JSON.stringify(chunk),
+    // }))
+    sections = processedPdf.map((row) => ({
+      content: JSON.stringify(row),
+    }));
+    console.log("Index section: ", sections);
     
     console.log("PDF file parsed successfully")
-    const {error} = await supabase.from('document_sections').insert(
-      processedPdf.sections.map(( {content} ) => ({
+    const { error } = await supabase.from('document_sections').insert(
+      sections.map(( {content} ) => ({
         document_id,
-        content
+        content,
       }))
     );
+    
 
 
     if (error) {
@@ -265,7 +280,7 @@ Deno.serve(async (req) => {
     }
 
     console.log(
-      `Saved ${processedPdf.sections.length} sections for file '${document.name}'`
+      `Saved ${processedPdf} sections for file '${document.name}'`
     );
   }
   

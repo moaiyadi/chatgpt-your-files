@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
     );
   }
 
-  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     global: {
       headers: {
         authorization,
@@ -58,7 +58,7 @@ Deno.serve(async (req) => {
     },
   });
 
-  const { chatId, message, messages, embedding } = await req.json();
+  const { /*chatId, message,*/ messages, embedding } = await req.json();
 
   const { data: documents, error: matchError } = await supabase
     .rpc('match_document_sections', {
@@ -66,7 +66,7 @@ Deno.serve(async (req) => {
       match_threshold: 0.8,
     })
     .select('content')
-    .limit(5);
+    .limit(1);
 
   if (matchError) {
     console.error(matchError);
@@ -116,9 +116,9 @@ Deno.serve(async (req) => {
     ];
 
   const completionStream = await openai.chat.completions.create({
-    model: 'gpt-3.5-turbo-0125',
+    model: 'gpt-3.5-turbo',
     messages: completionMessages,
-    max_tokens: 1024,
+    // max_tokens: 1024,
     temperature: 0,
     stream: true,
   });
